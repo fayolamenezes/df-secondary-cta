@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hover Fill Button (GSAP)</title>
+<style>
+  :root{
+    --yellow: #ffb100;
+    --bg: #000;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    background:var(--bg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .btn{
+    --s: 0;                  /* scale of the filling circle (0..1) */
+    --x: 50%;                /* circle center X */
+    --y: 50%;                /* circle center Y */
+    --fg: var(--yellow);     /* text color */
+    --border: var(--yellow); /* border color */
+
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 30px;
+    height:56px;
+    border-radius:999px;
+    border:2px solid var(--border);
+    background:transparent;
+    color:var(--fg);
+    font-weight:700;
+    font-size:18px;
+    cursor:pointer;
+    overflow:hidden;
+    user-select:none;
+    transition: border-color 0.2s linear;
+  }
+
+  /* expanding circle (the fill) */
+  .btn::before{
+    content:'';
+    position:absolute;
+    left:var(--x);
+    top:var(--y);
+    width:300%;                 /* big circle so it can cover the entire button */
+    aspect-ratio:1/1;
+    border-radius:50%;
+    background:var(--yellow);
+    transform:translate(-50%,-50%) scale(var(--s));
+    transform-origin:center;
+    will-change:transform;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  .label{
+    position:relative;
+    z-index:1;
+    transition:color .12s linear;
+    color:inherit;
+    padding:0 6px;
+  }
+</style>
+</head>
+<body>
+
+<button class="btn"><span class="label">Sign UP</span></button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+  const btn = document.querySelector('.btn');
+
+  function setXY(e){
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    btn.style.setProperty('--x', `${x}px`);
+    btn.style.setProperty('--y', `${y}px`);
+  }
+
+  btn.addEventListener('mouseenter', (e) => {
+    setXY(e);
+    gsap.killTweensOf(btn);
+    gsap.to(btn, { duration: 1.1, ease: 'power2.out', '--s': 1 });
+    gsap.to(btn, { duration: 0.12, '--fg': '#fff', '--border': '#fff', delay: 0.05 });
+  });
+
+  btn.addEventListener('mousemove', setXY);
+
+  btn.addEventListener('mouseleave', () => {
+    gsap.killTweensOf(btn);
+    gsap.to(btn, { duration: 0.35, ease: 'power2.in', '--s': 0 });
+    gsap.to(btn, { duration: 0, '--fg': 'var(--yellow)', '--border': 'var(--yellow)', delay: 0.1 });
+  });
+</script>
+
+</body>
+</html>
